@@ -33,7 +33,14 @@ int main() {
         child_pid = fork();
     } 
 
+    /*
+        With the spin lock, we can make sure each child waits its turn and increments counter 1 million times
 
+        I notice that without the spin lock, we get random numbers for counter. This is for two main reasons: 
+        1. The parent prints before all the children can increment counter 1 million times.
+        2. All the children are incrementing counter, but *counter += 1 isn't even atomic so even if the parent
+        printed after all the children exited, we still probably wouldnt get 10 million
+    */
     spin_lock(lock);
     for(int i = 0; i < 1000; i++) {
         for(int j = 0; j < 1000; j++) {
@@ -42,6 +49,7 @@ int main() {
     }
     spin_unlock(lock);
 
+    // children exit here
     if(child_pid == 0) {
         exit(EXIT_SUCCESS);
     }
