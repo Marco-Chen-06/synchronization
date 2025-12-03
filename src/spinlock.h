@@ -24,5 +24,6 @@
 #include <sched.h>
 #include <stdatomic.h>
 
+#define N_PROC 64 // maximum number of virtual processors which implementation is required to accept
 void spin_lock(volatile char *lock);
 void spin_unlock(volatile char *lock);
