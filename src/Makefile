@@ -1,13 +1,14 @@
 CC = gcc
 CFLAGS += -g
 
-spinlock : spinlock.c tas64.S 
-		${CC} ${CFLAGS} -o $@ $^
+all: spinlock sem
 
-sem : sem.c spinlock.c tas64.S 
-		${CC} ${CFLAGS} -o $@ $^
+spinlock: spinlock.c tas64.S
+	${CC} ${CFLAGS} -o $@ $^
 
+sem: sem.c spinlock.c tas64.S
+	${CC} ${CFLAGS} -o $@ $^
 
-.PHONY: clean
+.PHONY: clean all
 clean:
-		@rm -rvf *.o
+	@rm -rvf spinlock sem *.o
