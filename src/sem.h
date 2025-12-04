@@ -1,7 +1,7 @@
-// changes: renamed n_proc to N_PROC
+// changes: renamed n_proc to N_PROC 
 // moved struct to header file
 // removed the -1 return value from sem_init on error because we don't anticipate errors from lecture notes
-// changed if(!(count <= my_procnum)) to if(!(count <= N_PROC)) to make it easier to compile and my_procnum is uninitialized
+// changed if(!(count <= my_procnum)) to if(!(count <= N_PROC)) because N_PROC represents the max processes
 // used sigemptyset instead of setting SIGUSR1_response to 0 in sem_init because SIGUSR1_response is not an int
 // moved the return 1 all the way to the bottom of sem_try
 // added "s->wait_list[my_procnum] = getpid();" to while loop in sem_wait

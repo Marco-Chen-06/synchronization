@@ -3,10 +3,10 @@ CFLAGS += -g
 
 all: spinlock sem
 
-spinlock: spinlock.c tas64.S
+spinlock: test_spinlock.c spinlock.c tas64.S
 	${CC} ${CFLAGS} -o $@ $^
 
-sem: sem.c spinlock.c tas64.S
+sem: test_sem.c sem.c spinlock.c tas64.S
 	${CC} ${CFLAGS} -o $@ $^
 
 .PHONY: clean all

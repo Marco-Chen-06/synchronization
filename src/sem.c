@@ -66,7 +66,7 @@ int sem_try(struct sem *s) {  //attempt P operation
 
     if(sigprocmask(SIG_SETMASK, &oldset, NULL) == -1) { //reset original mask
         perror("signal masking failed");
-        return -1;
+        // no return here because the sem_try still worked
     }
 
     return 1;
@@ -99,6 +99,7 @@ void sem_wait(struct sem *s) { // P operation
     }
     
     s->semaphore--;
+    s->sleep_list[my_procnum] = 0; // clear sleep flag now
 
     spin_unlock(&s->semaphore_lock);
 
@@ -128,11 +129,12 @@ void sem_inc(struct sem *s) { // V operation
     s->semaphore++;
 
     for(int i = 0; i < N_PROC; i++) {
-        kill(s->wait_list[i], SIGUSR1); //wakes up every sleeping process
-    } 
-
-    for(int i = 0; i < N_PROC; i++) {
-        s->wait_list[i] = 0; //empties the waitlist
+        // only wake sleeping processes and handle edge case incase parent pid does something weird
+        if ((s->sleep_list[i] == 1) && (s->wait_list[i] != 0)) {
+            kill(s->wait_list[i], SIGUSR1); // wakes up every sleeping process
+            s->sleep_list[i] = 0; // empties sleep list
+            s->wait_list[i] = 0; // empties wait list
+        }
     }
 
     spin_unlock(&s->semaphore_lock);
