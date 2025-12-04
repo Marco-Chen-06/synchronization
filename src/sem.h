@@ -1,3 +1,5 @@
+// note the changes comments below are old and i added and changed way more stuff now srry
+
 // changes: renamed n_proc to N_PROC 
 // moved struct to header file
 // removed the -1 return value from sem_init on error because we don't anticipate errors from lecture notes
