@@ -22,9 +22,11 @@ struct myfifo *f = mmap(NULL, sizeof(struct myfifo) + sizeof(struct sem) * 2, PR
         
     // every child process with my_procnum < 10 waits for resources
     if ((child_pid == 0) && (my_procnum < 10)){
+        for (int i = 0; i < 1000; i++) {
         fifo_wr(f, 1);
         printf("Process with my_procnum %d wrote 1 to fifo\n", my_procnum);
-        usleep(100000); // process hoards semaphore for 1000000 microseconds (0.1 ms)
+        // usleep(100000); // process hoards semaphore for 1000000 microseconds (0.1 ms)
+        }
         
     }
 
@@ -54,8 +56,8 @@ struct myfifo *f = mmap(NULL, sizeof(struct myfifo) + sizeof(struct sem) * 2, PR
     // }
     
 
-    while (f->item_count > 0) {
-        printf("Found %d in fifo\n", fifo_rd(f));
-    }
+    // while (f->item_count > 0) {
+    //     printf("Found %d in fifo\n", fifo_rd(f));
+    // }
     return 0;
 }

@@ -7,7 +7,8 @@ struct myfifo {
     unsigned long buf[MYFIFO_BUFSIZ];
     int next_write, next_read; // next open read or write indices
     int item_count;
-    struct sem count_sem; // used to count the filled indices of buf
+    struct sem empty_sem; // counts the number of empty spaces
+    struct sem full_sem; // counts the number of full spaces
     struct sem lock_sem; // used as a simple mutex lock
 };
 
