@@ -37,7 +37,7 @@ unsigned long fifo_rd(struct myfifo *f) {
     f->next_read %= MYFIFO_BUFSIZ;
     f->item_count--;
     
-    sem_inc(&f->lock_sem); // unlock the fifo
+    // sem_inc(&f->lock_sem); // unlock the fifo
     sem_inc(&f->empty_sem); // temm semaphore a space was emptied
     return ret_val;
 }

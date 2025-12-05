@@ -27,13 +27,13 @@ int main() {
         2. All the children are incrementing counter, but *counter += 1 isn't even atomic so even if the parent
         printed after all the children exited, we still probably wouldnt get 10 million
     */
-    spin_lock(lock);
+    // spin_lock(lock);
     for(int i = 0; i < 1000; i++) {
         for(int j = 0; j < 1000; j++) {
             *counter += 1;
         } 
     }
-    spin_unlock(lock);
+    // spin_unlock(lock);
 
     // children exit here
     if(child_pid == 0) {

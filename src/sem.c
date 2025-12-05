@@ -10,19 +10,10 @@ void sem_init(struct sem *s, int count) {
     s->semaphore = count;
     s->semaphore_lock = 0; //start off as unlocked obviously
 
-    // // early return if count is larger than our max process number
-    // if(!(count <= N_PROC)) {
-    //     fprintf(stdout, "count is larger than maximum resource pool");
-    //     return;
-    // }
-
     for(int i = 0; i < N_PROC; i++) {
         s->wait_list[i] = 0;
         s->sleep_list[i] = 0;
     }
-
-    // s->wait_list[my_procnum] = getpid();
-
 
     struct sigaction SIGUSR1_response;
     SIGUSR1_response.sa_flags = 0;
@@ -33,8 +24,6 @@ void sem_init(struct sem *s, int count) {
         fprintf(stderr, "Sigaction for assigning new handler for SIGUSR1 failed: %s", strerror(errno));
         return;
     }
-
-    //index is the next element (process) TO BE added, meaning currently no waiting process id is stored in wait_list[wait_list_index]
 }
 
 
@@ -67,7 +56,7 @@ int sem_try(struct sem *s) {  //attempt P operation
 
     if(sigprocmask(SIG_SETMASK, &oldset, NULL) == -1) { //reset original mask
         fprintf(stderr, "Signal mask restoration failed in sem_try after semaphore was decremented: %s", strerror(errno));
-        // no return here because the sem_try still worked
+        // note there is no return here because the sem_try still worked
     }
 
     return 1;
@@ -144,66 +133,4 @@ void sem_inc(struct sem *s) { // V operation
         fprintf(stderr, "Signal mask restoration failed in sem_inc after semaphore was incremented: %s", strerror(errno));
     }
 }
-
-
-
-// marco old code for reference
-
-
-
-// #include "sem.h"
-
-// void sem_init(struct sem *s, int count) {
-//     s->lock = 0;
-//     s->supply = count;
-//     for (int i = 0; i < N_PROC; i++) {
-//         s->sleepers[i] = 0;
-//     }
-// }
-
-// int sem_try(struct sem *s) {
-//     spin_lock(s->lock);
-//     // if "P" operation would block, return 0
-//     if (s->supply <= 0) {
-//         spin_unlock(s->lock);
-//         return 0;
-//     }
-//     s->supply--;
-//     spin_unlock(s->lock);
-//     return 1;
-// }
-
-// // unfinished
-// void sem_wait(struct sem *s) {
-//     spin_lock(s->lock);
-
-//     // is this all that is necessary for suspending? (not sure)
-//     sigset_t empty_mask;
-//     sigemptyset(&empty_mask);
-//     sigsuspend(&empty_mask);
-// }
-
-
-// void sem_inc(struct sem *s) {
-//     spin_lock(s->lock);
-
-//     // wake everyone up because supply went from 0 to 1
-//     if (s->supply == 0) {
-//         s->supply++;
-//         for (int i = 0; i < s->num_sleepers; i++) {
-//             // not sure if im allowed to put an integer into kill
-//             kill(s->sleepers[i], SIGUSR1);
-//         }
-//         s->num_sleepers = 0;
-//         spin_unlock(s->lock);
-//         return;
-//     }
-
-//     // in every other case just increment supply like normal
-//     s->supply++;
-//     spin_unlock(s->lock);
-//     return;
-// }
-
-
 
