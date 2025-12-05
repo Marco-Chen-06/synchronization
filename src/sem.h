@@ -1,14 +1,3 @@
-// note the changes comments below are old and i added and changed way more stuff now srry
-
-// changes: renamed n_proc to N_PROC 
-// moved struct to header file
-// removed the -1 return value from sem_init on error because we don't anticipate errors from lecture notes
-// changed if(!(count <= my_procnum)) to if(!(count <= N_PROC)) because N_PROC represents the max processes
-// used sigemptyset instead of setting SIGUSR1_response to 0 in sem_init because SIGUSR1_response is not an int
-// moved the return 1 all the way to the bottom of sem_try
-// added "s->wait_list[my_procnum] = getpid();" to while loop in sem_wait
-// commented  s->wait_list[my_procnum] = getpid(); in sem_init
-// commented  sigprocmask(SIG_SETMASK, &oldset, NULL); //reset signal mask to original in sem_wait
 #ifndef SEM_H
 
 #include "spinlock.h"
@@ -31,23 +20,3 @@ void sem_inc(struct sem *s);
 #define SEM_H
 #endif
 
-
-
-
-
-
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include "spinlock.h"
-
-// struct sem {
-//     int supply;
-//     volatile char *lock;
-//     int num_sleepers; 
-//     int sleepers[N_PROC]; // stores PID of the sleeper in each index. If there is no sleeper, then element should be 0.
-// };
-
-// void sem_init(struct sem *s, int count);
-// int sem_try(struct sem *s);
-// void sem_wait(struct sem *s);
-// void sem_inc(struct sem *s);
