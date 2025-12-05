@@ -30,7 +30,7 @@ void sem_init(struct sem *s, int count) {
     SIGUSR1_response.sa_handler = blank_handler;
 
     if(sigaction(SIGUSR1, &SIGUSR1_response, NULL) == -1) {
-        perror("sigaction for assigning new handler for SIGUSR1 failed");
+        fprintf(stderr, "Sigaction for assigning new handler for SIGUSR1 failed: %s", strerror(errno));
         return;
     }
 
@@ -49,6 +49,7 @@ int sem_try(struct sem *s) {  //attempt P operation
     sigfillset(&newset); //blocks all signals
 
     if(sigprocmask(SIG_SETMASK, &newset, &oldset) == -1) {
+        fprintf(stderr, "Initial signal masking in sem_try failed: %s", strerror(errno));
         perror("signal masking failed");
     }
 
@@ -65,7 +66,7 @@ int sem_try(struct sem *s) {  //attempt P operation
     spin_unlock(&s->semaphore_lock);
 
     if(sigprocmask(SIG_SETMASK, &oldset, NULL) == -1) { //reset original mask
-        perror("signal masking failed");
+        fprintf(stderr, "Signal mask restoration failed in sem_try after semaphore was decremented: %s", strerror(errno));
         // no return here because the sem_try still worked
     }
 
@@ -83,7 +84,7 @@ void sem_wait(struct sem *s) { // P operation
     sigfillset(&newset); //blocks all signals
 
     if(sigprocmask(SIG_SETMASK, &newset, &oldset) == -1) {
-        perror("signal masking failed");
+        fprintf(stderr, "Initial signal masking in sem_wait failed: %s", strerror(errno));
     }
 
     spin_lock(&s->semaphore_lock);
@@ -105,7 +106,7 @@ void sem_wait(struct sem *s) { // P operation
 
     
     if(sigprocmask(SIG_SETMASK, &oldset, NULL) == -1) { //reset original mask
-        perror("signal masking failed");
+        fprintf(stderr, "Signal mask restoration failed in sem_wait after semaphore was decremented: %s", strerror(errno));
     }
 
 }
@@ -121,7 +122,7 @@ void sem_inc(struct sem *s) { // V operation
     sigfillset(&newset); //blocks all signals
 
     if(sigprocmask(SIG_SETMASK, &newset, &oldset) == -1) { //mask all signals
-        perror("signal masking failed");
+        fprintf(stderr, "Initial signal masking in sem_inc failed: %s", strerror(errno));
     }
     
     spin_lock(&s->semaphore_lock);
@@ -140,7 +141,7 @@ void sem_inc(struct sem *s) { // V operation
     spin_unlock(&s->semaphore_lock);
 
     if(sigprocmask(SIG_SETMASK, &oldset, NULL) == -1) { //reset original mask
-        perror("signal masking failed");
+        fprintf(stderr, "Signal mask restoration failed in sem_inc after semaphore was incremented: %s", strerror(errno));
     }
 }
 
