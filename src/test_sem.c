@@ -9,8 +9,9 @@
     they like the resources. Then they return it with sem_inc.
 */
 
-#define NUM_RESOURCES 5
+#define NUM_RESOURCES 4000
 int main() {
+
     struct sem *semaphore = mmap(NULL, sizeof(struct sem), PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
 
     // create delicious scarce semaphore resources

@@ -9,6 +9,7 @@
 // added "s->wait_list[my_procnum] = getpid();" to while loop in sem_wait
 // commented  s->wait_list[my_procnum] = getpid(); in sem_init
 // commented  sigprocmask(SIG_SETMASK, &oldset, NULL); //reset signal mask to original in sem_wait
+#ifndef SEM_H
 
 #include "spinlock.h"
 #define N_PROC 64
@@ -27,6 +28,8 @@ int sem_try(struct sem *s);
 void sem_wait(struct sem *s);
 void sem_inc(struct sem *s);
 
+#define SEM_H
+#endif
 
 
 

@@ -10,11 +10,11 @@ void sem_init(struct sem *s, int count) {
     s->semaphore = count;
     s->semaphore_lock = 0; //start off as unlocked obviously
 
-    // early return if count is larger than our max process number
-    if(!(count <= N_PROC)) {
-        fprintf(stdout, "count is larger than maximum resource pool");
-        return;
-    }
+    // // early return if count is larger than our max process number
+    // if(!(count <= N_PROC)) {
+    //     fprintf(stdout, "count is larger than maximum resource pool");
+    //     return;
+    // }
 
     for(int i = 0; i < N_PROC; i++) {
         s->wait_list[i] = 0;

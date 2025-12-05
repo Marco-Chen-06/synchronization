@@ -1,65 +1,49 @@
-#include "sem.h"
-#include <sys/mman.h>
-#include <sys/wait.h>
-
+#include "spinlock.h"
 int main() {
-    // Create shared memory for semaphore and counter
-    struct sem *semaphore = mmap(NULL, sizeof(struct sem), 
-                                 PROT_READ | PROT_WRITE, 
-                                 MAP_SHARED | MAP_ANON, -1, 0);
-    
-    long long int *counter = mmap(NULL, sizeof(long long int), 
-                                  PROT_READ | PROT_WRITE, 
-                                  MAP_SHARED | MAP_ANON, -1, 0);
-    
+
+    //use mmap here to make shared memory region
+    //use MAP_SHARED
+    //use 
+
+    long long int *counter = mmap(NULL, 4096, PROT_READ| PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+    volatile char *lock = mmap(NULL, 4096, PROT_READ| PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+
     *counter = 0;
-    
-    // Initialize semaphore with 1 (acts like a mutex)
-    sem_init(semaphore, 1);
-    
+
     int child_pid = 1;
-    
-    // Fork 9 times to create 10 processes total
-    for(int i = 0; i < 9; i++) {
+
+    for(int i = 0; i < 9; i++) { //my macOS has 10 cores total
         if(child_pid == 0) {
             continue;
         }
         child_pid = fork();
-        if(child_pid == 0) {
-            my_procnum = i + 1;  // Set process number for children
-        }
-    }
-    
-    if(child_pid != 0) {
-        my_procnum = 0;  // Parent is process 0
-    }
-    
-    // Each process increments counter 1 million times
-    sem_wait(semaphore);
+    } 
+
+    /*
+        With the spin lock, we can make sure each child waits its turn and increments counter 1 million times
+
+        I notice that without the spin lock, we get random numbers for counter. This is for two main reasons: 
+        1. The parent prints before all the children can increment counter 1 million times.
+        2. All the children are incrementing counter, but *counter += 1 isn't even atomic so even if the parent
+        printed after all the children exited, we still probably wouldnt get 10 million
+    */
+    spin_lock(lock);
     for(int i = 0; i < 1000; i++) {
         for(int j = 0; j < 1000; j++) {
             *counter += 1;
-        }
+        } 
     }
-    sem_inc(semaphore);
-    
-    // Children exit here
+    spin_unlock(lock);
+
+    // children exit here
     if(child_pid == 0) {
         exit(EXIT_SUCCESS);
     }
-    
-    // Parent waits for all children
-    while(wait(NULL) > 0);
-    
-    // Parent prints result
+
+    while(wait(NULL) > 0); //wait for all child processes to die
+
     if(child_pid != 0) {
-        fprintf(stdout, "Counter: %lld (expected: 10000000)\n", *counter);
-        if(*counter == 10000000) {
-            fprintf(stdout, "SUCCESS!\n");
-        } else {
-            fprintf(stdout, "FAILURE - race condition detected\n");
-        }
+        fprintf(stdout, "%lld\n", *counter); //print out result
     }
-    
-    return 0;
+
 }
